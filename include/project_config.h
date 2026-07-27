@@ -26,9 +26,13 @@
 // set GSM PIN, if any
 #define GSM_PIN ""
 
-#define GPRS_APN "claro.com.br"
+#define GPRS_APN "virtueyes.com.br"
+#define GPRS_USER "virtu"
+#define GPRS_PASS "virtu#"
+
+/* #define GPRS_APN "claro.com.br"
 #define GPRS_USER "claro"
-#define GPRS_PASS "claro"
+#define GPRS_PASS "claro" */
 
 #define NETWORK_CHECK_INTERVAL_MS 3000UL
 #define GPRS_STATUS_SUMMARY_INTERVAL_MS 30000UL

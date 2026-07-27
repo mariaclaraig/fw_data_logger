@@ -88,7 +88,7 @@ bool gprs_network_connect(GprsNetworkLedHandler ledToggleHandler)
             Serial.print(" ");
             Serial.print("isNetworkConnected: ");
             isConnected = modem.isNetworkConnected();
-            Serial.println(isConnected ? "CONNECTED" : "NO CONNECTED");
+            Serial.println(isConnected ? "CONNECTED" : "NOT CONNECTED");
             if (isConnected)
             {
                 return true;

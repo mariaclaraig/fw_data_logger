@@ -4,7 +4,6 @@
 
 #include "modules/communications/gprs/gprs_app.h"
 #include "modules/gpio/gpio_app.h"
-#include "modules/memory/sd_app.h"
 #include "project_config.h"
 
 void start_system()
@@ -13,6 +12,5 @@ void start_system()
     delay(10);
 
     gpio_app_init();
-    sd_app_init();
     gprs_app_init();
 }
