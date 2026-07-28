@@ -3,12 +3,46 @@
 #include <Arduino.h>
 
 #include "modules/communications/gprs/components/gprs_modem_state.h"
-#include "project_config.h"
 
 static bool lastConnectionState = true;
 static bool currentConnectionState = true;
 static unsigned long lastNetworkCheck = 0;
 static unsigned long lastStatusSummary = 0;
+
+NetworkMode *gprs_network_configure_mode(uint8_t network_value, uint8_t *network_size)
+{
+    static NetworkMode modes[1];
+    uint8_t size = 0;
+
+    // wip: deixar network_size mesmo que tamanho seja padrão por enquanto, posteriormente pode ser alterado.
+
+    switch (network_value)
+    {
+    case 2:
+        modes[0] = MODEM_NETWORK_AUTO;
+        size = 1;
+        break;
+    case 13:
+        modes[0] = MODEM_NETWORK_GSM;
+        size = 1;
+        break;
+    case 38:
+        modes[0] = MODEM_NETWORK_LTE;
+        size = 1;
+        break;
+    case 51:
+        modes[0] = MODEM_NETWORK_GSM_LTE;
+        size = 1;
+        break;
+    default:
+        modes[0] = MODEM_NETWORK_AUTO;
+        size = 0;
+        break;
+    }
+
+    *network_size = size;
+    return modes;
+}
 
 void gprs_network_print_diagnostics()
 {
@@ -63,15 +97,12 @@ void gprs_network_print_diagnostics()
 bool gprs_network_connect(GprsNetworkLedHandler ledToggleHandler)
 {
     TinyGsm &modem = gprs_modem();
-    
-    uint8_t network[] = {
-        2,  /*Automatic*/
-        13, /*GSM only*/
-        38, /*LTE only*/
-        51  /*GSM and LTE only*/
-    };
+    uint8_t networkSize = 0;
+    NetworkMode *network = gprs_network_configure_mode(
+        GPRS_SELECTED_NETWORK_MODE,
+        &networkSize);
 
-    for (size_t i = 0; i < sizeof(network) / sizeof(network[0]); i++)
+    for (size_t i = 0; i < networkSize; i++)
     {
         Serial.printf("Try %d method\n", network[i]);
         modem.setNetworkMode(network[i]);

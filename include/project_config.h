@@ -1,6 +1,8 @@
 #ifndef PROJECT_CONFIG_H
 #define PROJECT_CONFIG_H
 
+#include <Arduino.h>
+
 #define UART_BAUD 115200
 #define PIN_DTR 25 // Usado para despertar o módulo do modo de baixo consumo.
 #define PIN_TX 27 //  TX do módulo SIM7000G
@@ -30,12 +32,15 @@
 #define GPRS_USER "virtu"
 #define GPRS_PASS "virtu#"
 
+// depois alterar essa config para receber do nvs
+#define GPRS_SELECTED_NETWORK_MODE 2 // auto
+
 /* #define GPRS_APN "claro.com.br"
 #define GPRS_USER "claro"
 #define GPRS_PASS "claro" */
 
 #define NETWORK_CHECK_INTERVAL_MS 3000UL
-#define GPRS_STATUS_SUMMARY_INTERVAL_MS 30000UL
+#define GPRS_STATUS_SUMMARY_INTERVAL_MS 10000UL
 #define LED_BLINK_INTERVAL_MS 500UL
 #define LED_OFF HIGH
 
