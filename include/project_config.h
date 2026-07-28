@@ -21,7 +21,7 @@
 #define SerialMon Serial
 
 // See all AT commands, if wanted
-#define DUMP_AT_COMMANDS
+// #define DUMP_AT_COMMANDS
 
 // set GSM PIN, if any
 #define GSM_PIN ""
