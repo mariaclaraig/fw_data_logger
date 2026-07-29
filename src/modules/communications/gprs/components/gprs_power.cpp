@@ -3,6 +3,7 @@
 #include <Arduino.h>
 
 #include "modules/communications/gprs/components/gprs_modem_state.h"
+#include "modules/communications/gprs/components/gprs_network.h"
 #include "project_config.h"
 
 void gprs_power_modem_on()
@@ -23,9 +24,18 @@ void gprs_power_modem_off()
 
 void gprs_power_modem_restart()
 {
-    gprs_power_modem_off();
-    gprs_power_modem_on();
-    gprs_power_setup_modem();
+    TinyGsm &modem = gprs_modem();
+
+    modem.poweroff();
+    vTaskDelay(pdMS_TO_TICKS(5000));
+    if(!gprs_power_setup_modem())
+    {
+        Serial.println("[GPRS] Failed to setup modem after restart.");
+    }
+    if (!gprs_network_connect_data())
+    {
+        Serial.println("[GPRS] Failed to connect data after restart.");
+    }
 }
 
 bool gprs_power_setup_modem()

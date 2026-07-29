@@ -17,6 +17,11 @@ void gprs_app_power_on()
     gprs_power_modem_on();
 }
 
+void restart_modem()
+{
+    gprs_power_modem_restart();
+}
+
 void gprs_app_init()
 {
     if (!gprs_power_setup_modem())
@@ -38,6 +43,12 @@ void gprs_app_init()
 
 void gprs_app_monitor()
 {
+    if(!gprs_network_is_connected())
+    {
+        Serial.println("[GPRS] Modem is not responding. Restarting modem...");
+        restart_modem();
+    }
+
     gprs_network_monitor(
         gpio_app_status_led_off,
         gpio_app_status_led_toggle);
