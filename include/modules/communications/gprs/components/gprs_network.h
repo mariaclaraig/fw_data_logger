@@ -16,7 +16,7 @@ NetworkMode *gprs_network_configure_mode(uint8_t network_value, uint8_t *network
 typedef void (*GprsNetworkLedHandler)();
 
 void gprs_network_print_diagnostics();
-bool gprs_network_connect(GprsNetworkLedHandler ledToggleHandler);
+bool gprs_network_connect();
 void gprs_network_print_system_info();
 void gprs_network_monitor(
     GprsNetworkLedHandler ledOffHandler,

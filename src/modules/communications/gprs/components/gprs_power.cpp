@@ -32,6 +32,10 @@ void gprs_power_modem_restart()
     {
         Serial.println("[GPRS] Failed to setup modem after restart.");
     }
+    if(!gprs_network_connect())
+    {
+        Serial.println("[GPRS] Failed to connect to network after restart.");
+    }
     if (!gprs_network_connect_data())
     {
         Serial.println("[GPRS] Failed to connect data after restart.");

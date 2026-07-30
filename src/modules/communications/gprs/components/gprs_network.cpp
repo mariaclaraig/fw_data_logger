@@ -94,7 +94,7 @@ void gprs_network_print_diagnostics()
     }
 }
 
-bool gprs_network_connect(GprsNetworkLedHandler ledToggleHandler)
+bool gprs_network_connect()
 {
     TinyGsm &modem = gprs_modem();
     uint8_t networkSize = 0;
@@ -109,7 +109,7 @@ bool gprs_network_connect(GprsNetworkLedHandler ledToggleHandler)
         delay(3000);
 
         bool isConnected = false;
-        int tryCount = 60;
+        int tryCount = 30;
 
         while (tryCount--)
         {
@@ -126,7 +126,6 @@ bool gprs_network_connect(GprsNetworkLedHandler ledToggleHandler)
             }
 
             delay(3000);
-            ledToggleHandler();
         }
     }
 
@@ -141,6 +140,13 @@ bool gprs_network_is_connected()
 bool gprs_network_is_data_connected()
 {
     return gprs_modem().isGprsConnected();
+}
+
+bool gprs_network_connect_data()
+{
+    TinyGsm &modem = gprs_modem();
+
+    return modem.gprsConnect(GPRS_APN, GPRS_USER, GPRS_PASS);
 }
 
 void gprs_network_print_system_info()
@@ -201,11 +207,4 @@ void gprs_network_monitor(
         lastLedBlink = now;
         ledToggleHandler();
     }
-}
-
-bool gprs_network_connect_data()
-{
-    TinyGsm &modem = gprs_modem();
-
-    return modem.gprsConnect(GPRS_APN, GPRS_USER, GPRS_PASS);
 }

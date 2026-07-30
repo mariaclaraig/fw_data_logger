@@ -26,17 +26,25 @@ void gprs_app_init()
 {
     if (!gprs_power_setup_modem())
     {
+        Serial.println("[GPRS] Failed to setup modem.");
         return;
     }
 
     gprs_network_print_diagnostics();
-    gprs_network_connect(gpio_app_status_led_toggle);
-    gprs_network_connect_data();
-    gpio_app_status_led_off();
 
-    Serial.println();
-    Serial.println("Device is connected.");
-    Serial.println();
+    if(!gprs_network_connect())
+    {
+        Serial.println("[GPRS] Failed to connect to network.");
+        return;
+    }
+
+    if(!gprs_network_connect_data())
+    {
+        Serial.println("[GPRS] Failed to connect to data.");
+        return;
+    }
+
+    gpio_app_status_led_off();
 
     gprs_network_print_system_info();
 }
