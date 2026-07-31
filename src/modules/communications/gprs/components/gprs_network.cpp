@@ -106,7 +106,7 @@ bool gprs_network_connect()
     {
         Serial.printf("Try %d method\n", network[i]);
         modem.setNetworkMode(network[i]);
-        delay(3000);
+        vTaskDelay(pdMS_TO_TICKS(3000));
 
         bool isConnected = false;
         int tryCount = 30;
@@ -125,7 +125,7 @@ bool gprs_network_connect()
                 return true;
             }
 
-            delay(3000);
+            vTaskDelay(pdMS_TO_TICKS(3000));
         }
     }
 
@@ -145,7 +145,7 @@ bool gprs_network_is_data_connected()
 bool gprs_network_connect_data()
 {
     TinyGsm &modem = gprs_modem();
-
+    
     return modem.gprsConnect(GPRS_APN, GPRS_USER, GPRS_PASS);
 }
 
