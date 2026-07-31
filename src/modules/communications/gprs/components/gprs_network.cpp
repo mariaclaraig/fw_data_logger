@@ -18,19 +18,19 @@ NetworkMode *gprs_network_configure_mode(uint8_t network_value, uint8_t *network
 
     switch (network_value)
     {
-    case 2:
+    case 1:
         modes[0] = MODEM_NETWORK_AUTO;
         size = 1;
         break;
-    case 13:
+    case 2:
         modes[0] = MODEM_NETWORK_GSM;
         size = 1;
         break;
-    case 38:
+    case 3:
         modes[0] = MODEM_NETWORK_LTE;
         size = 1;
         break;
-    case 51:
+    case 4:
         modes[0] = MODEM_NETWORK_GSM_LTE;
         size = 1;
         break;
@@ -141,6 +141,8 @@ bool gprs_network_is_data_connected()
 {
     return gprs_modem().isGprsConnected();
 }
+
+
 
 bool gprs_network_connect_data()
 {

@@ -33,7 +33,7 @@
 #define GPRS_PASS "virtu#"
 
 // depois alterar essa config para receber do nvs
-#define GPRS_SELECTED_NETWORK_MODE 2 // auto
+#define GPRS_SELECTED_NETWORK_MODE 1 // auto
 
 /* #define GPRS_APN "claro.com.br"
 #define GPRS_USER "claro"
