@@ -104,7 +104,7 @@ bool gprs_network_connect()
         vTaskDelay(pdMS_TO_TICKS(3000));
 
         bool is_connected = false;
-        int tryCount = 10;
+        int tryCount = GPRS_NETWORK_RECONNECT_ATTEMPTS;
 
         while (tryCount--)
         {
@@ -165,8 +165,32 @@ bool gprs_network_reconnect()
 bool gprs_network_connect_data()
 {
     TinyGsm &modem = gprs_modem();
-    
-    return modem.gprsConnect(GPRS_APN, GPRS_USER, GPRS_PASS);
+    int tryCount = GPRS_DATA_RECONNECT_ATTEMPTS;
+
+    while (tryCount--)
+    {
+        if (modem.isGprsConnected())
+        {
+            return true;
+        }
+
+        Serial.print("[GPRS] tentando conectar dados. Tentativas restantes: ");
+        Serial.println(tryCount);
+
+        if (modem.gprsConnect(GPRS_APN, GPRS_USER, GPRS_PASS))
+        {
+            return true;
+        }
+
+        if (modem.isGprsConnected())
+        {
+            return true;
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(3000));
+    }
+
+    return modem.isGprsConnected();
 }
 
 void gprs_network_print_system_info()
@@ -190,7 +214,7 @@ void gprs_network_monitor(
     TinyGsm &modem = gprs_modem();
     static unsigned long lastLedBlink = 0;
     unsigned long now = millis();
-        
+
     static bool lastConnectionState = true;
     static bool currentConnectionState = true;
     static bool dataConnectionState = true;
