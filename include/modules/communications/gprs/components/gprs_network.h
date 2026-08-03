@@ -17,11 +17,13 @@ typedef void (*GprsNetworkLedHandler)();
 
 void gprs_network_print_diagnostics();
 bool gprs_network_connect();
+bool gprs_network_is_connected();
+bool gprs_network_is_data_connected();
+bool gprs_network_reconnect();
+bool gprs_network_connect_data();
 void gprs_network_print_system_info();
 void gprs_network_monitor(
     GprsNetworkLedHandler ledOffHandler,
     GprsNetworkLedHandler ledToggleHandler);
-bool gprs_network_is_connected();
-bool gprs_network_connect_data();
 
 #endif // GPRS_NETWORK_H

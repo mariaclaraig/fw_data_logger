@@ -51,9 +51,9 @@ void gprs_app_init()
 
 void gprs_app_monitor()
 {
-    if(!gprs_network_is_connected())
+    if(!gprs_network_reconnect())
     {
-        Serial.println("[GPRS] Modem is not responding. Restarting modem...");
+        Serial.println("[GPRS] Não foi possível restabelecer a conexão. Reiniciando modem...");
         restart_modem();
     }
 

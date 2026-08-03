@@ -4,11 +4,6 @@
 
 #include "modules/communications/gprs/components/gprs_modem_state.h"
 
-static bool lastConnectionState = true;
-static bool currentConnectionState = true;
-static unsigned long lastNetworkCheck = 0;
-static unsigned long lastStatusSummary = 0;
-
 NetworkMode *gprs_network_configure_mode(uint8_t network_value, uint8_t *network_size)
 {
     static NetworkMode modes[1];
@@ -108,8 +103,8 @@ bool gprs_network_connect()
         modem.setNetworkMode(network[i]);
         vTaskDelay(pdMS_TO_TICKS(3000));
 
-        bool isConnected = false;
-        int tryCount = 30;
+        bool is_connected = false;
+        int tryCount = 10;
 
         while (tryCount--)
         {
@@ -118,9 +113,9 @@ bool gprs_network_connect()
             Serial.print(signal);
             Serial.print(" ");
             Serial.print("isNetworkConnected: ");
-            isConnected = modem.isNetworkConnected();
-            Serial.println(isConnected ? "CONNECTED" : "NOT CONNECTED");
-            if (isConnected)
+            is_connected = modem.isNetworkConnected();
+            Serial.println(is_connected ? "CONNECTED" : "NOT CONNECTED");
+            if (is_connected)
             {
                 return true;
             }
@@ -142,7 +137,30 @@ bool gprs_network_is_data_connected()
     return gprs_modem().isGprsConnected();
 }
 
+bool gprs_network_reconnect()
+{
+    if (!gprs_network_is_connected())
+    {
+        Serial.println("[GPRS] rede perdida, tentando reconectar rede...");
+        if (!gprs_network_connect())
+        {
+            Serial.println("[GPRS] falha ao reconectar rede.");
+            return false;
+        }
+    }
 
+    if (!gprs_network_is_data_connected())
+    {
+        Serial.println("[GPRS] sessão de dados perdida, tentando reconectar GPRS...");
+        if (!gprs_network_connect_data())
+        {
+            Serial.println("[GPRS] falha ao reconectar dados.");
+            return false;
+        }
+    }
+
+    return true;
+}
 
 bool gprs_network_connect_data()
 {
@@ -172,12 +190,18 @@ void gprs_network_monitor(
     TinyGsm &modem = gprs_modem();
     static unsigned long lastLedBlink = 0;
     unsigned long now = millis();
+        
+    static bool lastConnectionState = true;
+    static bool currentConnectionState = true;
+    static bool dataConnectionState = true;
+    static unsigned long lastNetworkCheck = 0;
+    static unsigned long lastStatusSummary = 0;
 
     if (now - lastNetworkCheck >= NETWORK_CHECK_INTERVAL_MS)
     {
         lastNetworkCheck = now;
-        currentConnectionState = modem.isNetworkConnected();
-        bool dataConnectionState = modem.isGprsConnected();
+        currentConnectionState = gprs_network_is_connected();
+        dataConnectionState = gprs_network_is_data_connected();
 
         if (currentConnectionState != lastConnectionState)
         {
