@@ -29,6 +29,7 @@ bool gprs_network_is_connected();
 bool gprs_network_is_data_connected();
 bool gprs_network_reconnect();
 bool gprs_network_connect_data();
+String gprs_network_get_connected_technology();
 void gprs_network_print_system_info();
 void gprs_network_monitor(
     GprsNetworkLedHandler ledOffHandler,

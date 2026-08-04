@@ -1,6 +1,6 @@
 #include "modules/communications/gprs/components/gprs_at.h"
 
-#include "modules/communications/gprs/components/gprs_modem_state.h"
+#include "project_config.h"
 
 String gprs_at_send_command(const char *command)
 {
@@ -9,17 +9,23 @@ String gprs_at_send_command(const char *command)
         return "";
     }
 
-    TinyGsm &modem = gprs_modem();
-    modem.sendAT(command);
+    SerialAT.println(command);
+    vTaskDelay(pdMS_TO_TICKS(100));
 
     String response = "";
-    modem.waitResponse(1000L, response);
+    while (SerialAT.available())
+    {
+        response += char(SerialAT.read());
+    }
+
+    vTaskDelay(pdMS_TO_TICKS(100));
     return response;
 }
 
 String gprs_at_get_value_from_response(const char *command, int position)
 {
     String response = gprs_at_send_command(command);
+    vTaskDelay(pdMS_TO_TICKS(500));
     int startIndex = response.indexOf(":") + 1;
 
     if (startIndex == 0)
