@@ -11,7 +11,15 @@ typedef enum
     MODEM_NETWORK_GSM_LTE = 51,  /*GSM and LTE only*/
 } NetworkMode;
 
+typedef enum
+{
+    MODEM_ACCESS_TECH_AUTO = 3, /*CAT-M and NB-IoT*/
+    MODEM_ACCESS_TECH_CAT_M1 = 1, /*CAT-M1 only*/
+    MODEM_ACCESS_TECH_NB_IOT = 2, /*NB-IoT only*/
+} AccessTechnology;
+
 NetworkMode *gprs_network_configure_mode(uint8_t network_value, uint8_t *network_size);
+AccessTechnology gprs_network_configure_access_technology(uint8_t technology_value);
 
 typedef void (*GprsNetworkLedHandler)();
 

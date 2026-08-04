@@ -39,6 +39,27 @@ NetworkMode *gprs_network_configure_mode(uint8_t network_value, uint8_t *network
     return modes;
 }
 
+AccessTechnology gprs_network_configure_access_technology(uint8_t technology_value)
+{
+    AccessTechnology preferredMode = MODEM_ACCESS_TECH_AUTO;
+
+    switch (technology_value)
+    {
+    case 1:
+        preferredMode = MODEM_ACCESS_TECH_CAT_M1;
+        break;
+    case 2:
+        preferredMode = MODEM_ACCESS_TECH_NB_IOT;
+        break;
+    case 3:
+    default:
+        preferredMode = MODEM_ACCESS_TECH_AUTO;
+        break;
+    }
+
+    return preferredMode;
+}
+
 void gprs_network_print_diagnostics()
 {
     TinyGsm &modem = gprs_modem();
@@ -97,10 +118,24 @@ bool gprs_network_connect()
         GPRS_SELECTED_NETWORK_MODE,
         &networkSize);
 
+    AccessTechnology preferredMode = gprs_network_configure_access_technology(
+        GPRS_SELECTED_ACCESS_TECHNOLOGY);
+
+    if (!modem.setPreferredMode(preferredMode))
+    {
+        Serial.println("[GPRS] falha ao configurar tecnologia de acesso.");
+        return false;
+    }
+
     for (size_t i = 0; i < networkSize; i++)
     {
         Serial.printf("Try %d method\n", network[i]);
-        modem.setNetworkMode(network[i]);
+        if (!modem.setNetworkMode(network[i]))
+        {
+            Serial.println("[GPRS] falha ao configurar modo de rede.");
+            continue;
+        }
+
         vTaskDelay(pdMS_TO_TICKS(3000));
 
         bool is_connected = false;
