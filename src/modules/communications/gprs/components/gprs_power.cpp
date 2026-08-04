@@ -22,7 +22,7 @@ void gprs_power_modem_off()
     digitalWrite(PWR_PIN, HIGH);
 }
 
-void gprs_power_modem_restart()
+bool gprs_power_modem_restart()
 {
     TinyGsm &modem = gprs_modem();
 
@@ -31,15 +31,20 @@ void gprs_power_modem_restart()
     if(!gprs_power_setup_modem())
     {
         Serial.println("[GPRS] Failed to setup modem after restart.");
+        return false;
     }
     if(!gprs_network_connect())
     {
         Serial.println("[GPRS] Failed to connect to network after restart.");
+        return false;
     }
     if (!gprs_network_connect_data())
     {
         Serial.println("[GPRS] Failed to connect data after restart.");
+        return false;
     }
+
+    return true;
 }
 
 bool gprs_power_setup_modem()
@@ -52,9 +57,18 @@ bool gprs_power_setup_modem()
     TinyGsm &modem = gprs_modem();
 
     Serial.println("========INIT========");
-    modem.init();
+    if (!modem.init())
+    {
+        Serial.println("[GPRS] modem.init() failed.");
+        return false;
+    }
+
+    if (!modem.testAT())
+    {
+        Serial.println("[GPRS] modem is not responding to AT commands.");
+        return false;
+    }
 
     modem.sendAT("+CMEE=2");
-    modem.waitResponse(1000L);
-    return true;
+    return modem.waitResponse(1000L) == 1;
 }

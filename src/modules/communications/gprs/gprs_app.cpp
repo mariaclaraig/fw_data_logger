@@ -19,28 +19,43 @@ void gprs_app_power_on()
 
 void restart_modem()
 {
-    gprs_power_modem_restart();
+    if (!gprs_power_modem_restart())
+    {
+        Serial.println("[GPRS] Restart do modem nao restabeleceu a conexao.");
+    }
 }
 
 void gprs_app_init()
 {
-    if (!gprs_power_setup_modem())
+    int tryCount = GPRS_MODEM_SETUP_ATTEMPTS;
+
+    while (tryCount-- && !gprs_power_setup_modem())
+    {
+        Serial.print("[GPRS] Failed to setup modem. Tentativas restantes: ");
+        Serial.println(tryCount);
+        vTaskDelay(pdMS_TO_TICKS(3000));
+    }
+
+    if (!gprs_modem().testAT())
     {
         Serial.println("[GPRS] Failed to setup modem.");
+        restart_modem();
         return;
     }
 
     gprs_network_print_diagnostics();
 
-    if(!gprs_network_connect())
+    if (!gprs_network_connect())
     {
         Serial.println("[GPRS] Failed to connect to network.");
+        restart_modem();
         return;
     }
 
-    if(!gprs_network_connect_data())
+    if (!gprs_network_connect_data())
     {
         Serial.println("[GPRS] Failed to connect to data.");
+        restart_modem();
         return;
     }
 
@@ -51,10 +66,24 @@ void gprs_app_init()
 
 void gprs_app_monitor()
 {
-    if(!gprs_network_reconnect())
+    static bool hasRestartedModem = false;
+    static unsigned long lastModemRestart = 0;
+
+    if (!gprs_network_reconnect())
     {
-        Serial.println("[GPRS] Não foi possível restabelecer a conexão. Reiniciando modem...");
-        restart_modem();
+        unsigned long now = millis();
+
+        if (!hasRestartedModem || now - lastModemRestart >= GPRS_MODEM_RESTART_COOLDOWN_MS)
+        {
+            Serial.println("[GPRS] Nao foi possivel restabelecer a conexao. Reiniciando modem...");
+            lastModemRestart = now;
+            hasRestartedModem = true;
+            restart_modem();
+        }
+        else
+        {
+            Serial.println("[GPRS] Falha de conexao mantida. Aguardando cooldown do restart.");
+        }
     }
 
     gprs_network_monitor(

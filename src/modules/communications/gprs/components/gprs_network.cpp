@@ -118,6 +118,25 @@ bool gprs_network_connect()
         GPRS_SELECTED_NETWORK_MODE,
         &networkSize);
 
+    if (!modem.testAT())
+    {
+        Serial.println("[GPRS] modem não responde durante conexão de rede.");
+        return false;
+    }
+
+    SimStatus simStatus = modem.getSimStatus();
+    if (simStatus == SIM_LOCKED && GSM_PIN[0] != '\0')
+    {
+        modem.simUnlock(GSM_PIN);
+        simStatus = modem.getSimStatus();
+    }
+
+    if (simStatus != SIM_READY)
+    {
+        Serial.println("[GPRS] SIM nao esta pronto. Reinicio do modem necessario.");
+        return false;
+    }
+
     AccessTechnology preferredMode = gprs_network_configure_access_technology(
         GPRS_SELECTED_ACCESS_TECHNOLOGY);
 
@@ -202,12 +221,21 @@ bool gprs_network_connect_data()
     TinyGsm &modem = gprs_modem();
     int tryCount = GPRS_DATA_RECONNECT_ATTEMPTS;
 
+    if (!modem.testAT())
+    {
+        Serial.println("[GPRS] modem não responde durante conexão de dados.");
+        return false;
+    }
+
     while (tryCount--)
     {
         if (modem.isGprsConnected())
         {
             return true;
         }
+
+        modem.gprsDisconnect();
+        vTaskDelay(pdMS_TO_TICKS(1000));
 
         Serial.print("[GPRS] tentando conectar dados. Tentativas restantes: ");
         Serial.println(tryCount);
