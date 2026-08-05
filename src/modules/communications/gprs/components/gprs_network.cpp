@@ -61,56 +61,6 @@ static AccessTechnology gprs_network_configure_access_technology(uint8_t technol
     return preferredMode;
 }
 
-void gprs_network_print_diagnostics()
-{
-    TinyGsm &modem = gprs_modem();
-    String res;
-
-    // Imprime informacoes referentes ao modem SIMCom, firmware/modelo, etc.
-    Serial.println("========SIMCOMATI======");
-    modem.sendAT("+SIMCOMATI");
-    modem.waitResponse(1000L, res);
-    res.replace("\r\nOK\r\n", "");
-    Serial.println(res);
-    res = "";
-    Serial.println("=======================");
-
-    // Consulta do modo do modem: automatico, GSM, LTE...
-    Serial.println("=====Preferred mode selection=====");
-    modem.sendAT("+CNMP?");
-    if (modem.waitResponse(1000L, res) == 1)
-    {
-        res.replace("\r\nOK\r\n", "");
-        Serial.println(res);
-    }
-    res = "";
-    Serial.println("=======================");
-
-    // Consulta qual a preferencia do modem: CAT-M, NB-IoT, ambos...
-    Serial.println("=====Preferred selection between CAT-M and NB-IoT=====");
-    modem.sendAT("+CMNB?");
-    if (modem.waitResponse(1000L, res) == 1)
-    {
-        res.replace("\r\nOK\r\n", "");
-        Serial.println(res);
-    }
-    res = "";
-    Serial.println("=======================");
-
-    // Consulta do nome e informacoes do modem atraves do TinyGSM.
-    String name = modem.getModemName();
-    Serial.println("Modem Name: " + name);
-
-    String modemInfo = modem.getModemInfo();
-    Serial.println("Modem Info: " + modemInfo);
-
-    // Desbloqueio do SIM caso PIN esteja configurado e nao seja desbloqueado.
-    if (GSM_PIN && modem.getSimStatus() != 3)
-    {
-        modem.simUnlock(GSM_PIN);
-    }
-}
-
 bool gprs_network_connect()
 {
     TinyGsm &modem = gprs_modem();

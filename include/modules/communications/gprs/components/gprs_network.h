@@ -25,7 +25,6 @@ typedef enum
     GPRS_CONNECTION_DATA_CONNECTED,
 } gprs_connection_state_t;
 
-void gprs_network_print_diagnostics();
 bool gprs_network_connect();
 bool gprs_network_is_connected();
 bool gprs_network_is_data_connected();

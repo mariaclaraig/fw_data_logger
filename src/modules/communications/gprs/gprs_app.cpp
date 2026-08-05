@@ -49,7 +49,7 @@ void gprs_app_init()
         return;
     }
 
-    gprs_network_print_diagnostics();
+    gprs_modem_state_print_diagnostics();
 
     if (!gprs_network_connect())
     {
