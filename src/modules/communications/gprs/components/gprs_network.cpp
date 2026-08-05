@@ -192,6 +192,24 @@ bool gprs_network_is_data_connected()
     return gprs_modem().isGprsConnected();
 }
 
+bool gprs_network_has_internet()
+{
+    if (!gprs_network_is_connected() || !gprs_network_is_data_connected())
+    {
+        return false;
+    }
+
+    TinyGsm &modem = gprs_modem();
+    TinyGsmClient client(modem);
+    bool isConnected = client.connect(
+        GPRS_INTERNET_CHECK_HOST,
+        GPRS_INTERNET_CHECK_PORT,
+        10);
+
+    client.stop();
+    return isConnected;
+}
+
 bool gprs_network_reconnect()
 {
     if (!gprs_network_is_connected())
@@ -312,14 +330,22 @@ void gprs_network_monitor(
     static bool lastConnectionState = true;
     static bool currentConnectionState = true;
     static bool dataConnectionState = true;
+    static bool internetConnectionState = false;
     static unsigned long lastNetworkCheck = 0;
     static unsigned long lastStatusSummary = 0;
+    static unsigned long lastInternetCheck = 0;
 
     if (now - lastNetworkCheck >= NETWORK_CHECK_INTERVAL_MS)
     {
         lastNetworkCheck = now;
         currentConnectionState = gprs_network_is_connected();
         dataConnectionState = gprs_network_is_data_connected();
+
+        if (now - lastInternetCheck >= GPRS_INTERNET_CHECK_INTERVAL_MS)
+        {
+            lastInternetCheck = now;
+            internetConnectionState = gprs_network_has_internet();
+        }
 
         if (currentConnectionState != lastConnectionState)
         {
@@ -336,6 +362,8 @@ void gprs_network_monitor(
             Serial.print(currentConnectionState ? "CONNECTED" : "NOT_CONNECTED");
             Serial.print(" dados=");
             Serial.print(dataConnectionState ? "CONNECTED" : "NOT_CONNECTED");
+            Serial.print(" internet=");
+            Serial.print(internetConnectionState ? "CONNECTED" : "NOT_CONNECTED");
             Serial.print(" tecnologia=");
             Serial.print(currentConnectionState ? gprs_network_get_connected_technology() : "NO_SERVICE");
             Serial.print(" sinal=");
