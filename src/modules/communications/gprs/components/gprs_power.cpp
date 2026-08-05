@@ -14,7 +14,7 @@ void gprs_power_modem_on()
     digitalWrite(PWR_PIN, HIGH);
 }
 
-void gprs_power_modem_off()
+static void gprs_power_modem_off(void)
 {
     pinMode(PWR_PIN, OUTPUT);
     digitalWrite(PWR_PIN, LOW);

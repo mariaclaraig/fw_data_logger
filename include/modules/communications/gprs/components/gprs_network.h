@@ -18,9 +18,6 @@ typedef enum
     MODEM_ACCESS_TECH_NB_IOT = 2, /*NB-IoT only*/
 } AccessTechnology;
 
-NetworkMode *gprs_network_configure_mode(uint8_t network_value, uint8_t *network_size);
-AccessTechnology gprs_network_configure_access_technology(uint8_t technology_value);
-
 typedef void (*GprsNetworkLedHandler)();
 
 void gprs_network_print_diagnostics();

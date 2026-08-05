@@ -7,17 +7,12 @@
 #include "modules/communications/gprs/components/gprs_modem_state.h"
 #include "modules/gpio/gpio_app.h"
 
-TinyGsm &get_gprs_modem()
-{
-    return gprs_modem();
-}
-
-void gprs_app_power_on()
+static void gprs_app_power_on(void)
 {
     gprs_power_modem_on();
 }
 
-void restart_modem()
+static void gprs_app_restart_modem(void)
 {
     if (!gprs_power_modem_restart())
     {
@@ -39,7 +34,7 @@ void gprs_app_init()
     if (!gprs_modem().testAT())
     {
         Serial.println("[GPRS] Failed to setup modem.");
-        restart_modem();
+        gprs_app_restart_modem();
         return;
     }
 
@@ -48,14 +43,14 @@ void gprs_app_init()
     if (!gprs_network_connect())
     {
         Serial.println("[GPRS] Failed to connect to network.");
-        restart_modem();
+        gprs_app_restart_modem();
         return;
     }
 
     if (!gprs_network_connect_data())
     {
         Serial.println("[GPRS] Failed to connect to data.");
-        restart_modem();
+        gprs_app_restart_modem();
         return;
     }
 
@@ -78,7 +73,7 @@ void gprs_app_monitor()
             Serial.println("[GPRS] Nao foi possivel restabelecer a conexao. Reiniciando modem...");
             lastModemRestart = now;
             hasRestartedModem = true;
-            restart_modem();
+            gprs_app_restart_modem();
         }
         else
         {

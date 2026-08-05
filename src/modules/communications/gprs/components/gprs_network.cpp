@@ -5,7 +5,7 @@
 #include "modules/communications/gprs/components/gprs_modem_state.h"
 #include "modules/communications/gprs/components/gprs_at.h"
 
-NetworkMode *gprs_network_configure_mode(uint8_t network_value, uint8_t *network_size)
+static NetworkMode *gprs_network_configure_mode(uint8_t network_value, uint8_t *network_size)
 {
     static NetworkMode modes[1];
     uint8_t size = 0;
@@ -40,7 +40,7 @@ NetworkMode *gprs_network_configure_mode(uint8_t network_value, uint8_t *network
     return modes;
 }
 
-AccessTechnology gprs_network_configure_access_technology(uint8_t technology_value)
+static AccessTechnology gprs_network_configure_access_technology(uint8_t technology_value)
 {
     AccessTechnology preferredMode = MODEM_ACCESS_TECH_AUTO;
 
