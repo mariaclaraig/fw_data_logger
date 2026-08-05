@@ -319,12 +319,9 @@ void gprs_network_print_system_info()
     Serial.println(gprs_at_send_command("AT+CPSI?"));
 }
 
-void gprs_network_monitor(
-    GprsNetworkLedHandler ledOffHandler,
-    GprsNetworkLedHandler ledToggleHandler)
+gprs_connection_state_t gprs_network_monitor()
 {
     TinyGsm &modem = gprs_modem();
-    static unsigned long lastLedBlink = 0;
     unsigned long now = millis();
 
     static bool lastConnectionState = true;
@@ -370,15 +367,17 @@ void gprs_network_monitor(
             Serial.println(modem.getSignalQuality());
         }
 
-        if (currentConnectionState)
-        {
-            ledOffHandler();
-        }
     }
 
-    if (!currentConnectionState && now - lastLedBlink >= LED_BLINK_INTERVAL_MS)
+    if (!currentConnectionState)
     {
-        lastLedBlink = now;
-        ledToggleHandler();
+        return GPRS_CONNECTION_DISCONNECTED;
     }
+
+    if (!dataConnectionState)
+    {
+        return GPRS_CONNECTION_NETWORK_CONNECTED;
+    }
+
+    return GPRS_CONNECTION_DATA_CONNECTED;
 }

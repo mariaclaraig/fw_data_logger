@@ -20,6 +20,17 @@ static void gprs_app_restart_modem(void)
     }
 }
 
+static void gprs_app_update_status_led(gprs_connection_state_t connectionState)
+{
+    if (connectionState == GPRS_CONNECTION_DATA_CONNECTED)
+    {
+        gpio_app_status_led_off();
+        return;
+    }
+
+    gpio_app_status_led_blink(LED_BLINK_INTERVAL_MS);
+}
+
 void gprs_app_init()
 {
     int tryCount = GPRS_MODEM_SETUP_ATTEMPTS;
@@ -81,7 +92,5 @@ void gprs_app_monitor()
         }
     }
 
-    gprs_network_monitor(
-        gpio_app_status_led_off,
-        gpio_app_status_led_toggle);
+    gprs_app_update_status_led(gprs_network_monitor());
 }

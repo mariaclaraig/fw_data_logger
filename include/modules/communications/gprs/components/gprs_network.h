@@ -18,7 +18,12 @@ typedef enum
     MODEM_ACCESS_TECH_NB_IOT = 2, /*NB-IoT only*/
 } AccessTechnology;
 
-typedef void (*GprsNetworkLedHandler)();
+typedef enum
+{
+    GPRS_CONNECTION_DISCONNECTED,
+    GPRS_CONNECTION_NETWORK_CONNECTED,
+    GPRS_CONNECTION_DATA_CONNECTED,
+} gprs_connection_state_t;
 
 void gprs_network_print_diagnostics();
 bool gprs_network_connect();
@@ -29,8 +34,6 @@ bool gprs_network_reconnect();
 bool gprs_network_connect_data();
 String gprs_network_get_connected_technology();
 void gprs_network_print_system_info();
-void gprs_network_monitor(
-    GprsNetworkLedHandler ledOffHandler,
-    GprsNetworkLedHandler ledToggleHandler);
+gprs_connection_state_t gprs_network_monitor();
 
 #endif // GPRS_NETWORK_H
