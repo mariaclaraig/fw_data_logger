@@ -16,10 +16,22 @@ TinyGsm &gprs_modem()
     return modem;
 }
 
+bool gprs_modem_state_prepare_sim()
+{
+    SimStatus simStatus = modem.getSimStatus();
+
+    if (simStatus == SIM_LOCKED && GSM_PIN[0] != '\0')
+    {
+        modem.simUnlock(GSM_PIN);
+        simStatus = modem.getSimStatus();
+    }
+
+    return simStatus == SIM_READY;
+}
+
 void gprs_modem_state_print_diagnostics()
 {
     TinyGsm &modem = gprs_modem();
-    String res;
 
     // Imprime informacoes referentes ao modem SIMCom, firmware/modelo, etc.
     Serial.println("========SIMCOMATI======");
@@ -39,10 +51,4 @@ void gprs_modem_state_print_diagnostics()
 
     String modemInfo = modem.getModemInfo();
     Serial.println("Modem Info: " + modemInfo);
-
-    // Desbloqueio do SIM caso PIN esteja configurado e nao seja desbloqueado.
-    if (GSM_PIN && modem.getSimStatus() != 3)
-    {
-        modem.simUnlock(GSM_PIN);
-    }
 }

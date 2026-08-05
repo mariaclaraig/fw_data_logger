@@ -75,14 +75,7 @@ bool gprs_network_connect()
         return false;
     }
 
-    SimStatus simStatus = modem.getSimStatus();
-    if (simStatus == SIM_LOCKED && GSM_PIN[0] != '\0')
-    {
-        modem.simUnlock(GSM_PIN);
-        simStatus = modem.getSimStatus();
-    }
-
-    if (simStatus != SIM_READY)
+    if (!gprs_modem_state_prepare_sim())
     {
         Serial.println("[GPRS] SIM nao esta pronto. Reinicio do modem necessario.");
         return false;
