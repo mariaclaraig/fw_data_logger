@@ -75,12 +75,6 @@ bool gprs_network_connect()
         return false;
     }
 
-    if (!gprs_modem_state_prepare_sim())
-    {
-        Serial.println("[GPRS] SIM nao esta pronto. Reinicio do modem necessario.");
-        return false;
-    }
-
     AccessTechnology preferredMode = gprs_network_configure_access_technology(
         GPRS_SELECTED_ACCESS_TECHNOLOGY);
 

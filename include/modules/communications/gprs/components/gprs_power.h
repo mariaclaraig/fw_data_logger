@@ -3,6 +3,7 @@
 
 void gprs_power_modem_on();
 bool gprs_power_modem_restart();
+bool gprs_power_prepare_sim();
 bool gprs_power_setup_modem();
 
 #endif // GPRS_POWER_H

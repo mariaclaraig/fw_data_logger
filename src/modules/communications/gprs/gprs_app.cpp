@@ -51,6 +51,13 @@ void gprs_app_init()
 
     gprs_modem_state_print_diagnostics();
 
+    if (!gprs_power_prepare_sim())
+    {
+        Serial.println("[GPRS] SIM nao esta pronto. Reinicio do modem necessario.");
+        gprs_app_restart_modem();
+        return;
+    }
+
     if (!gprs_network_connect())
     {
         Serial.println("[GPRS] Failed to connect to network.");

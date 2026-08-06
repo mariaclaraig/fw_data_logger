@@ -16,19 +16,6 @@ TinyGsm &gprs_modem()
     return modem;
 }
 
-bool gprs_modem_state_prepare_sim()
-{
-    SimStatus simStatus = modem.getSimStatus();
-
-    if (simStatus == SIM_LOCKED && GSM_PIN[0] != '\0')
-    {
-        modem.simUnlock(GSM_PIN);
-        simStatus = modem.getSimStatus();
-    }
-
-    return simStatus == SIM_READY;
-}
-
 void gprs_modem_state_print_diagnostics()
 {
     TinyGsm &modem = gprs_modem();
