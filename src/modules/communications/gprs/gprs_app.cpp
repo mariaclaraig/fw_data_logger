@@ -13,14 +13,6 @@ static void gprs_app_power_on(void)
     gprs_power_modem_on();
 }
 
-static void gprs_app_restart_modem(void)
-{
-    if (!gprs_power_modem_restart())
-    {
-        Serial.println("[GPRS] Restart do modem nao restabeleceu a conexao.");
-    }
-}
-
 static void gprs_app_update_status_led(gprs_connection_state_t connectionState)
 {
     if (connectionState == GPRS_CONNECTION_DATA_CONNECTED)
@@ -30,6 +22,37 @@ static void gprs_app_update_status_led(gprs_connection_state_t connectionState)
     }
 
     gpio_app_status_led_blink(LED_BLINK_INTERVAL_MS);
+}
+
+static bool gprs_app_connect_modem(void)
+{
+    if (!gprs_power_prepare_sim())
+    {
+        Serial.println("[GPRS] SIM nao esta pronto. Reinicio do modem necessario.");
+        return false;
+    }
+
+    if (!gprs_network_connect())
+    {
+        Serial.println("[GPRS] Failed to connect to network.");
+        return false;
+    }
+
+    if (!gprs_network_connect_data())
+    {
+        Serial.println("[GPRS] Failed to connect to data.");
+        return false;
+    }
+
+    return true;
+}
+
+static void gprs_app_restart_modem(void)
+{
+    if (!gprs_power_modem_restart() || !gprs_app_connect_modem())
+    {
+        Serial.println("[GPRS] Restart do modem nao restabeleceu a conexao.");
+    }
 }
 
 void gprs_app_init()
@@ -52,23 +75,8 @@ void gprs_app_init()
 
     gprs_modem_state_print_diagnostics();
 
-    if (!gprs_power_prepare_sim())
+    if (!gprs_app_connect_modem())
     {
-        Serial.println("[GPRS] SIM nao esta pronto. Reinicio do modem necessario.");
-        gprs_app_restart_modem();
-        return;
-    }
-
-    if (!gprs_network_connect())
-    {
-        Serial.println("[GPRS] Failed to connect to network.");
-        gprs_app_restart_modem();
-        return;
-    }
-
-    if (!gprs_network_connect_data())
-    {
-        Serial.println("[GPRS] Failed to connect to data.");
         gprs_app_restart_modem();
         return;
     }

@@ -3,7 +3,6 @@
 #include <Arduino.h>
 
 #include "modules/communications/gprs/components/gprs_modem_state.h"
-#include "modules/communications/gprs/components/gprs_network.h"
 #include "project_config.h"
 
 void gprs_power_modem_on()
@@ -31,21 +30,6 @@ bool gprs_power_modem_restart()
     if(!gprs_power_setup_modem())
     {
         Serial.println("[GPRS] Failed to setup modem after restart.");
-        return false;
-    }
-    if (!gprs_power_prepare_sim())
-    {
-        Serial.println("[GPRS] SIM is not ready after restart.");
-        return false;
-    }
-    if(!gprs_network_connect())
-    {
-        Serial.println("[GPRS] Failed to connect to network after restart.");
-        return false;
-    }
-    if (!gprs_network_connect_data())
-    {
-        Serial.println("[GPRS] Failed to connect data after restart.");
         return false;
     }
 
