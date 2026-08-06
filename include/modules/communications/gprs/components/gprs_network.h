@@ -25,12 +25,20 @@ typedef enum
     GPRS_CONNECTION_DATA_CONNECTED,
 } gprs_connection_state_t;
 
-bool gprs_network_connect();
+bool gprs_network_connect(uint8_t networkMode, uint8_t accessTechnology);
 bool gprs_network_is_connected();
 bool gprs_network_is_data_connected();
 bool gprs_network_has_internet();
-bool gprs_network_reconnect();
-bool gprs_network_connect_data();
+bool gprs_network_reconnect(
+    uint8_t networkMode,
+    uint8_t accessTechnology,
+    const char *apn,
+    const char *user,
+    const char *pass);
+bool gprs_network_connect_data(
+    const char *apn,
+    const char *user,
+    const char *pass);
 gprs_connection_state_t gprs_network_monitor();
 
 #endif // GPRS_NETWORK_H

@@ -61,12 +61,12 @@ static AccessTechnology gprs_network_configure_access_technology(uint8_t technol
     return preferredMode;
 }
 
-bool gprs_network_connect()
+bool gprs_network_connect(uint8_t networkMode, uint8_t accessTechnology)
 {
     TinyGsm &modem = gprs_modem();
     uint8_t networkSize = 0;
     NetworkMode *network = gprs_network_configure_mode(
-        GPRS_SELECTED_NETWORK_MODE,
+        networkMode,
         &networkSize);
 
     if (!modem.testAT())
@@ -76,7 +76,7 @@ bool gprs_network_connect()
     }
 
     AccessTechnology preferredMode = gprs_network_configure_access_technology(
-        GPRS_SELECTED_ACCESS_TECHNOLOGY);
+        accessTechnology);
 
     if (!modem.setPreferredMode(preferredMode))
     {
@@ -147,12 +147,17 @@ bool gprs_network_has_internet()
     return isConnected;
 }
 
-bool gprs_network_reconnect()
+bool gprs_network_reconnect(
+    uint8_t networkMode,
+    uint8_t accessTechnology,
+    const char *apn,
+    const char *user,
+    const char *pass)
 {
     if (!gprs_network_is_connected())
     {
         Serial.println("[GPRS] rede perdida, tentando reconectar rede...");
-        if (!gprs_network_connect())
+        if (!gprs_network_connect(networkMode, accessTechnology))
         {
             Serial.println("[GPRS] falha ao reconectar rede.");
             return false;
@@ -162,7 +167,7 @@ bool gprs_network_reconnect()
     if (!gprs_network_is_data_connected())
     {
         Serial.println("[GPRS] sessão de dados perdida, tentando reconectar GPRS...");
-        if (!gprs_network_connect_data())
+        if (!gprs_network_connect_data(apn, user, pass))
         {
             Serial.println("[GPRS] falha ao reconectar dados.");
             return false;
@@ -172,7 +177,10 @@ bool gprs_network_reconnect()
     return true;
 }
 
-bool gprs_network_connect_data()
+bool gprs_network_connect_data(
+    const char *apn,
+    const char *user,
+    const char *pass)
 {
     TinyGsm &modem = gprs_modem();
     int tryCount = GPRS_DATA_RECONNECT_ATTEMPTS;
@@ -196,7 +204,7 @@ bool gprs_network_connect_data()
         Serial.print("[GPRS] tentando conectar dados. Tentativas restantes: ");
         Serial.println(tryCount);
 
-        if (modem.gprsConnect(GPRS_APN, GPRS_USER, GPRS_PASS))
+        if (modem.gprsConnect(apn, user, pass))
         {
             return true;
         }

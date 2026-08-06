@@ -24,6 +24,31 @@ static void gprs_app_update_status_led(gprs_connection_state_t connectionState)
     gpio_app_status_led_blink(LED_BLINK_INTERVAL_MS);
 }
 
+static uint8_t gprs_app_get_network_mode(void)
+{
+    return GPRS_SELECTED_NETWORK_MODE;
+}
+
+static uint8_t gprs_app_get_access_technology(void)
+{
+    return GPRS_SELECTED_ACCESS_TECHNOLOGY;
+}
+
+static const char *gprs_app_get_apn(void)
+{
+    return GPRS_APN;
+}
+
+static const char *gprs_app_get_user(void)
+{
+    return GPRS_USER;
+}
+
+static const char *gprs_app_get_pass(void)
+{
+    return GPRS_PASS;
+}
+
 static bool gprs_app_connect_modem(void)
 {
     if (!gprs_power_prepare_sim())
@@ -32,13 +57,18 @@ static bool gprs_app_connect_modem(void)
         return false;
     }
 
-    if (!gprs_network_connect())
+    if (!gprs_network_connect(
+            gprs_app_get_network_mode(),
+            gprs_app_get_access_technology()))
     {
         Serial.println("[GPRS] Failed to connect to network.");
         return false;
     }
 
-    if (!gprs_network_connect_data())
+    if (!gprs_network_connect_data(
+            gprs_app_get_apn(),
+            gprs_app_get_user(),
+            gprs_app_get_pass()))
     {
         Serial.println("[GPRS] Failed to connect to data.");
         return false;
@@ -91,7 +121,12 @@ void gprs_app_monitor()
     static bool hasRestartedModem = false;
     static unsigned long lastModemRestart = 0;
 
-    if (!gprs_network_reconnect())
+    if (!gprs_network_reconnect(
+            gprs_app_get_network_mode(),
+            gprs_app_get_access_technology(),
+            gprs_app_get_apn(),
+            gprs_app_get_user(),
+            gprs_app_get_pass()))
     {
         unsigned long now = millis();
 
