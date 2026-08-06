@@ -31,8 +31,6 @@ bool gprs_network_is_data_connected();
 bool gprs_network_has_internet();
 bool gprs_network_reconnect();
 bool gprs_network_connect_data();
-String gprs_network_get_connected_technology();
-void gprs_network_print_system_info();
 gprs_connection_state_t gprs_network_monitor();
 
 #endif // GPRS_NETWORK_H

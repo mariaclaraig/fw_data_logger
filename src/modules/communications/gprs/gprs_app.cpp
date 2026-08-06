@@ -5,6 +5,7 @@
 #include "modules/communications/gprs/components/gprs_network.h"
 #include "modules/communications/gprs/components/gprs_power.h"
 #include "modules/communications/gprs/components/gprs_modem_state.h"
+#include "modules/communications/gprs/components/gprs_identity.h"
 #include "modules/gpio/gpio_app.h"
 
 static void gprs_app_power_on(void)
@@ -74,7 +75,7 @@ void gprs_app_init()
 
     gpio_app_status_led_off();
 
-    gprs_network_print_system_info();
+    gprs_identity_print_system_info();
 }
 
 void gprs_app_monitor()

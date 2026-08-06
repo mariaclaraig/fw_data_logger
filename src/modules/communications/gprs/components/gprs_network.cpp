@@ -2,8 +2,8 @@
 
 #include <Arduino.h>
 
+#include "modules/communications/gprs/components/gprs_identity.h"
 #include "modules/communications/gprs/components/gprs_modem_state.h"
-#include "modules/communications/gprs/components/gprs_at.h"
 
 static NetworkMode *gprs_network_configure_mode(uint8_t network_value, uint8_t *network_size)
 {
@@ -212,50 +212,6 @@ bool gprs_network_connect_data()
     return modem.isGprsConnected();
 }
 
-String gprs_network_get_connected_technology()
-{
-    String technology = gprs_at_get_value_from_response("AT+CPSI?", 0);
-    technology.toUpperCase();
-
-    if (technology.length() == 0)
-    {
-        return "UNKNOWN";
-    }
-
-    if (technology.indexOf("NO SERVICE") >= 0)
-    {
-        return "NO_SERVICE";
-    }
-
-    if (technology.indexOf("CAT-M1") >= 0 || technology.indexOf("CAT-M") >= 0)
-    {
-        return "CAT-M";
-    }
-
-    if (technology.indexOf("NB-IOT") >= 0 || technology.indexOf("NBIOT") >= 0)
-    {
-        return "NB-IoT";
-    }
-
-    if (technology.indexOf("LTE") >= 0)
-    {
-        return "LTE";
-    }
-
-    if (technology.indexOf("GSM") >= 0)
-    {
-        return "GSM";
-    }
-
-    return technology;
-}
-
-void gprs_network_print_system_info()
-{
-    Serial.println("=====Inquiring UE system information=====");
-    Serial.println(gprs_at_send_command("AT+CPSI?"));
-}
-
 gprs_connection_state_t gprs_network_monitor()
 {
     TinyGsm &modem = gprs_modem();
@@ -299,7 +255,7 @@ gprs_connection_state_t gprs_network_monitor()
             Serial.print(" internet=");
             Serial.print(internetConnectionState ? "CONNECTED" : "NOT_CONNECTED");
             Serial.print(" tecnologia=");
-            Serial.print(currentConnectionState ? gprs_network_get_connected_technology() : "NO_SERVICE");
+            Serial.print(currentConnectionState ? gprs_identity_get_connected_technology() : "NO_SERVICE");
             Serial.print(" sinal=");
             Serial.println(modem.getSignalQuality());
         }

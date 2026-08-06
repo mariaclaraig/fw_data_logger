@@ -22,10 +22,8 @@ String gprs_at_send_command(const char *command)
     return response;
 }
 
-String gprs_at_get_value_from_response(const char *command, int position)
+String gprs_at_get_value_from_response(String response, int position)
 {
-    String response = gprs_at_send_command(command);
-    vTaskDelay(pdMS_TO_TICKS(500));
     int startIndex = response.indexOf(":") + 1;
 
     if (startIndex == 0)
