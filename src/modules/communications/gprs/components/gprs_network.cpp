@@ -61,7 +61,10 @@ static AccessTechnology gprs_network_configure_access_technology(uint8_t technol
     return preferredMode;
 }
 
-bool gprs_network_connect(uint8_t networkMode, uint8_t accessTechnology)
+bool gprs_network_connect(
+    uint8_t networkMode,
+    uint8_t accessTechnology,
+    int connectionAttempts)
 {
     TinyGsm &modem = gprs_modem();
     uint8_t networkSize = 0;
@@ -96,7 +99,7 @@ bool gprs_network_connect(uint8_t networkMode, uint8_t accessTechnology)
         vTaskDelay(pdMS_TO_TICKS(3000));
 
         bool is_connected = false;
-        int tryCount = GPRS_NETWORK_RECONNECT_ATTEMPTS;
+        int tryCount = connectionAttempts;
 
         while (tryCount--)
         {
@@ -147,43 +150,13 @@ bool gprs_network_has_internet()
     return isConnected;
 }
 
-bool gprs_network_reconnect(
-    uint8_t networkMode,
-    uint8_t accessTechnology,
-    const char *apn,
-    const char *user,
-    const char *pass)
-{
-    if (!gprs_network_is_connected())
-    {
-        Serial.println("[GPRS] rede perdida, tentando reconectar rede...");
-        if (!gprs_network_connect(networkMode, accessTechnology))
-        {
-            Serial.println("[GPRS] falha ao reconectar rede.");
-            return false;
-        }
-    }
-
-    if (!gprs_network_is_data_connected())
-    {
-        Serial.println("[GPRS] sessão de dados perdida, tentando reconectar GPRS...");
-        if (!gprs_network_connect_data(apn, user, pass))
-        {
-            Serial.println("[GPRS] falha ao reconectar dados.");
-            return false;
-        }
-    }
-
-    return true;
-}
-
 bool gprs_network_connect_data(
     const char *apn,
     const char *user,
     const char *pass)
 {
     TinyGsm &modem = gprs_modem();
-    int tryCount = GPRS_DATA_RECONNECT_ATTEMPTS;
+    int tryCount = GPRS_DATA_CONNECT_ATTEMPTS;
 
     if (!modem.testAT())
     {

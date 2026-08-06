@@ -34,6 +34,11 @@ static uint8_t gprs_app_get_access_technology(void)
     return GPRS_SELECTED_ACCESS_TECHNOLOGY;
 }
 
+static int gprs_app_get_network_connect_attempts(void)
+{
+    return GPRS_NETWORK_CONNECT_ATTEMPTS;
+}
+
 static const char *gprs_app_get_apn(void)
 {
     return GPRS_APN;
@@ -59,7 +64,8 @@ static bool gprs_app_connect_modem(void)
 
     if (!gprs_network_connect(
             gprs_app_get_network_mode(),
-            gprs_app_get_access_technology()))
+            gprs_app_get_access_technology(),
+            gprs_app_get_network_connect_attempts()))
     {
         Serial.println("[GPRS] Failed to connect to network.");
         return false;
@@ -120,28 +126,29 @@ void gprs_app_monitor()
 {
     static bool hasRestartedModem = false;
     static unsigned long lastModemRestart = 0;
+    static unsigned long lastRestartCooldownLog = 0;
+    gprs_connection_state_t connectionState = gprs_network_monitor();
 
-    if (!gprs_network_reconnect(
-            gprs_app_get_network_mode(),
-            gprs_app_get_access_technology(),
-            gprs_app_get_apn(),
-            gprs_app_get_user(),
-            gprs_app_get_pass()))
+    if (connectionState != GPRS_CONNECTION_DATA_CONNECTED)
     {
         unsigned long now = millis();
 
         if (!hasRestartedModem || now - lastModemRestart >= GPRS_MODEM_RESTART_COOLDOWN_MS)
         {
-            Serial.println("[GPRS] Nao foi possivel restabelecer a conexao. Reiniciando modem...");
+            Serial.println("[GPRS] Conexao GPRS indisponivel. Reiniciando modem...");
             lastModemRestart = now;
             hasRestartedModem = true;
             gprs_app_restart_modem();
         }
         else
         {
-            Serial.println("[GPRS] Falha de conexao mantida. Aguardando cooldown do restart.");
+            if (now - lastRestartCooldownLog >= GPRS_STATUS_SUMMARY_INTERVAL_MS)
+            {
+                lastRestartCooldownLog = now;
+                Serial.println("[GPRS] Falha de conexao mantida. Aguardando cooldown do restart.");
+            }
         }
     }
 
-    gprs_app_update_status_led(gprs_network_monitor());
+    gprs_app_update_status_led(connectionState);
 }
